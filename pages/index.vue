@@ -6,25 +6,27 @@
             <h1  class="flex font-bold justify-center items-center">ToDo App</h1>
            
             <input v-model="Text" 
-            class="rounded-sm " type="text"  
+            class="rounded-sm p-1 " type="text"  
             placeholder="please enter the task"
-            @keypress.enter="addtext()"
+            @keypress.enter="addtext(index)"
             >
 
-            
+           
         </div>
     </div>
 </div>
 <div v-for="(total,index) in totalText" 
             :key="index" 
-            class="flex justify-center items-center gap-2 ">
+            class="flex justify-center items-center gap-4 ">
             
-            <input @change="Text.isComplet = !Text.isComplet" type="checkbox">
+            <input @change="updateText(index)" type="checkbox">
             <p class="cursor-pointer font-bold" 
             @dblclick="removeText(index)"
-            :class="{'line-through' : Text.isComplet}"
+            :class="{'line-through' : total.isComplet}" 
+            
             >
-            {{ total.value }}
+            {{ total.data }}
+
             </p>
     </div>
 </template>
@@ -33,27 +35,61 @@
     data(){
         return{
             Text:"",
-            totalText:[]
+            totalText:[
+            ]
         }
     },
     methods:{
+        getApi(){
+           this.$http.$get("/user").then((res)=>{
+            this.totalText =res.users;
+           })
+        },
         addtext(){
             if (this.Text == "") {
                 alert("please enter the value")
 
             }
             else{
-                this.totalText.push({
-                    value:this.Text,
-                    isComplet:false
+                this.$http.$post("/user/add",{
+                   body:{
+                     data:this.Text,
+                   }
                 })
-                this.Text == "";
+                .then((res)=>{
+                    this.getApi();
+                
+                })
+                this.totalText = "";
+                }
+                
+            },
+            updateText(index){
+               this.$http.$patch(`user/update/${ this.totalText[index].id} `, {
+                body:{
+                    data:this.totalText[index].data,
+                    isComplet: !this.totalText[index].isComplet,
+                }
+               })
+               .then((res)=>{
+                    this.getApi();
+                
+                })
+            },
+            removeText(index){
+                this.$http.$delete("/user/delete/" + this.totalText[index].id)
+                .then((res)=>{
+                    this.getApi();
+                
+                })
             }
+            
         },
-        removeText(index){
-            this.totalText.splice(index, 1)
-        }
-    }
+    mounted(){
+        this.getApi()
+    },
+
+
 }
 
 </script>
