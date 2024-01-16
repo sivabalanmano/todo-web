@@ -6,7 +6,7 @@
             <h1  class="flex font-bold justify-center items-center">ToDo App</h1>
            
             <input v-model="Text" 
-            class="rounded-sm p-1 " type="text"  
+            class="rounded-xl p-1 " type="text"  
             placeholder="please enter the task"
             @keypress.enter="addtext(index)"
             >
@@ -25,7 +25,7 @@
             :class="{'line-through' : total.isComplet}" 
             
             >
-            {{ total.data }}
+            {{ total.datas }}
 
             </p>
     </div>
@@ -53,7 +53,7 @@
             else{
                 this.$http.$post("/user/add",{
                    body:{
-                     data:this.Text,
+                     datas:this.Text,
                    }
                 })
                 .then((res)=>{
@@ -65,7 +65,7 @@
                 
             },
             updateText(index){
-               this.$http.$patch(`user/update/${ this.totalText[index].id} `, {
+               this.$http.$put(`user/update/${ this.totalText[index].id} `, {
                 body:{
                     data:this.totalText[index].data,
                     isComplet: !this.totalText[index].isComplet,
